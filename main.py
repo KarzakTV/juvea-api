@@ -191,7 +191,7 @@ IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Tu dois IMPÉRATIVEMENT uti
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
     payload = {
-        "model": "claude-3-5-sonnet-latest",
+        "model": "claude-sonnet-4-6",
         "max_tokens": 2500, 
         "temperature": 0.4, 
         "system": prompt_system, 
@@ -341,7 +341,7 @@ RÈGLES ABSOLUES :
     content_block.append({"type": "text", "text": req.message})
 
     payload = {
-        "model": "claude-3-5-sonnet-latest", 
+        "model": "claude-sonnet-4-6", 
         "max_tokens": 500, 
         "temperature": 0.5, 
         "system": prompt_system, 
@@ -370,7 +370,7 @@ def scan_inci_vision(req: InciRequete):
     prompt_system = f"Analyse l'image INCI pour le type {req.baumann_code}. Recommande via : {cat_str}. JSON uniquement."
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     b64_clean = req.image_b64.split(",")[-1] if "," in req.image_b64 else req.image_b64
-    payload = {"model": "claude-3-5-sonnet-latest", "max_tokens": 800, "system": prompt_system, "messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_clean}}, {"type": "text", "text": "Analyse INCI."}]}]}
+    payload = {"model": "claude-sonnet-4-6", "max_tokens": 800, "system": prompt_system, "messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_clean}}, {"type": "text", "text": "Analyse INCI."}]}]}
     try:
         r = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers, timeout=30)
         if r.status_code == 200:
