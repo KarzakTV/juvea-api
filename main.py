@@ -297,16 +297,30 @@ async def diagnostic(client: RequeteClient, request: Request, background_tasks: 
 
 @app.post("/api/sos-peau")
 async def sos_peau_chat(req: SosRequete):
+    if not ANTHROPIC_API_KEY:
+        return {"reponse": "Clé API Anthropic manquante sur le serveur."}
+        
     prompt_system = f"Tu es l'Expert Dermo-Cosmétique d'Urgence Juvea Paris. Patient Baumann : {req.baumann_code}. Météo : {req.environnement}. Concis, rassurant, luxueux."
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     payload = {"model": "claude-3-5-sonnet-20241022", "max_tokens": 500, "temperature": 0.5, "system": prompt_system, "messages": [{"role": "user", "content": req.message}]}
     try:
         r = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers, timeout=20)
-        return {"reponse": r.json()["content"][0]["text"]} if r.status_code == 200 else {"reponse": "Erreur service."}
-    except Exception: return {"reponse": "Erreur connexion."}
+        if r.status_code == 200:
+            return {"reponse": r.json()["content"][0]["text"]}
+        else:
+            # On imprime dans les logs pour la traçabilité
+            print(f"❌ Erreur API SOS Peau: {r.status_code} - {r.text}", flush=True)
+            # MODIFICATION : On renvoie l'erreur détaillée directement à l'application pour voir le problème en direct
+            return {"reponse": f"ERREUR CLAUDE : Code {r.status_code} - {r.text}"}
+    except Exception as e:
+        print(f"❌ Exception API SOS Peau: {e}", flush=True)
+        return {"reponse": f"ERREUR SERVEUR : {str(e)}"}
 
 @app.post("/api/scan-inci")
 async def scan_inci_vision(req: InciRequete):
+    if not ANTHROPIC_API_KEY:
+        return {"error": "Clé API Anthropic manquante.", "statut": "erreur", "analyse": "Clé API manquante sur le serveur."}
+        
     cat_str = json.dumps(CATALOGUE, ensure_ascii=False)
     prompt_system = f"Analyse l'image INCI pour le type {req.baumann_code}. Recommande via : {cat_str}. JSON uniquement."
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
@@ -314,5 +328,11 @@ async def scan_inci_vision(req: InciRequete):
     payload = {"model": "claude-3-5-sonnet-20241022", "max_tokens": 800, "system": prompt_system, "messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_clean}}, {"type": "text", "text": "Analyse INCI."}]}]}
     try:
         r = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers, timeout=30)
-        return json.loads(r.json()["content"][0]["text"])
-    except Exception: return {"error": "Analyse impossible."}
+        if r.status_code == 200:
+            return json.loads(r.json()["content"][0]["text"])
+        else:
+            print(f"❌ Erreur API Scan INCI: {r.status_code} - {r.text}", flush=True)
+            return {"error": "Analyse impossible.", "statut": "erreur", "analyse": f"ERREUR CLAUDE : Code {r.status_code} - {r.text}"}
+    except Exception as e:
+        print(f"❌ Exception API Scan INCI: {e}", flush=True)
+        return {"error": "Analyse impossible.", "statut": "erreur", "analyse": f"ERREUR SERVEUR : {str(e)}"}
