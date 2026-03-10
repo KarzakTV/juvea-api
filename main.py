@@ -183,7 +183,7 @@ STRUCTURE JSON EXACTE REQUISE :
   "exclusions_texte": "1 paragraphe précis proscrivant les ingrédients irritants avec les raisons scientifiques.",
   "decryptage_inci": "1 explication développée sur le fait que le Pur Jus d'Aloe Vera remplace l'eau chez Juvea pour une efficacité maximale."
 }}
-IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide."""
+IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Tu dois IMPÉRATIVEMENT utiliser '\\n' pour les sauts de ligne à l'intérieur de tes valeurs. NE FAIS AUCUN VRAI RETOUR À LA LIGNE dans les chaînes de caractères du JSON, sinon le parsing échouera."""
     
     prompt_user = f"Patiente: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige l'expertise complète et fluide."
     
@@ -220,7 +220,10 @@ IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide."""
             if match: 
                 try:
                     return json.loads(match.group(0))
-                except Exception: pass
+                except Exception as parse_err:
+                    print(f"❌ Erreur lors du parsing JSON de Claude : {parse_err}", flush=True)
+                    print(f"Texte brut renvoyé par Claude :\n{clean_text}", flush=True)
+                    pass
         else:
             print(f"❌ Erreur API Claude: {r.status_code} - {r.text}", flush=True)
     except Exception as e:
