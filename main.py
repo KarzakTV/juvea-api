@@ -172,25 +172,26 @@ def generer_analyse_claude(prenom, age, profil, profil_secondaire, attentes, con
 
     prompt_system = f"""Tu es l'IA Experte en Dermo-Cosmétique de Juvea Paris.
 RÈGLE ABSOLUE 1 : Ne propose JAMAIS de consulter un cabinet physique Juvea. Ne propose un médecin que si la situation est grave.
-RÈGLE ABSOLUE 2 : Ton ton est LUXUEUX, RASSURANT et HAUTEMENT CLINIQUE. Tu dois fournir une expertise riche, ultra-détaillée et personnalisée. Prends tout l'espace nécessaire pour développer tes arguments scientifiques.
+RÈGLE ABSOLUE 2 : Ton ton est LUXUEUX, RASSURANT et HAUTEMENT CLINIQUE.
+RÈGLE ABSOLUE 3 : Tu dois être CONCIS, IMPACTANT et ALLER À L'ESSENTIEL. Ne rédige surtout pas un roman. Le client veut lire une expertise rapide et claire.
 BASE DE CONNAISSANCES :
 {bible}
 STRUCTURE JSON EXACTE REQUISE :
 {{
-  "analyse_pro": "3 ou 4 paragraphes élégants, détaillés et cliniques liant l'âge ({age} ans), le climat ({contexte}) et les problèmes ({profil}, {profil_secondaire}) à la typologie {baumann_code}. {photo_context}",
-  "focus_actif": "1 paragraphe complet et très approfondi expliquant l'action biologique de nos actifs recommandés.",
-  "conseils_vie": "1 paragraphe détaillé sur l'hygiène de vie globale et l'impact de la météo actuelle.",
-  "exclusions_texte": "1 paragraphe précis proscrivant les ingrédients irritants avec les raisons scientifiques.",
-  "decryptage_inci": "1 explication développée sur le fait que le Pur Jus d'Aloe Vera remplace l'eau chez Juvea pour une efficacité maximale."
+  "analyse_pro": "1 ou 2 paragraphes très concis liant l'âge ({age} ans), le climat ({contexte}) et les problèmes ({profil}, {profil_secondaire}) à la typologie {baumann_code}. {photo_context}",
+  "focus_actif": "1 paragraphe synthétique expliquant l'action biologique de nos actifs recommandés.",
+  "conseils_vie": "1 paragraphe court sur l'hygiène de vie globale et la météo.",
+  "exclusions_texte": "1 paragraphe court proscrivant les ingrédients irritants.",
+  "decryptage_inci": "1 phrase claire expliquant que le Pur Jus d'Aloe Vera remplace l'eau chez Juvea."
 }}
-IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Tu dois IMPÉRATIVEMENT utiliser '\\n' pour les sauts de ligne à l'intérieur de tes valeurs. NE FAIS AUCUN VRAI RETOUR À LA LIGNE dans les chaînes de caractères du JSON, sinon le parsing échouera."""
+IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Tu dois IMPÉRATIVEMENT utiliser '\\n' pour les sauts de ligne à l'intérieur de tes valeurs. NE FAIS AUCUN VRAI RETOUR À LA LIGNE dans les chaînes de caractères du JSON."""
     
-    prompt_user = f"Patiente: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige l'expertise complète et fluide."
+    prompt_user = f"Patiente: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige l'expertise de façon concise."
     
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
     payload = {
-        "model": "claude-sonnet-4-6",
+        "model": "claude-3-5-sonnet-latest",
         "max_tokens": 2500, 
         "temperature": 0.4, 
         "system": prompt_system, 
@@ -281,7 +282,6 @@ def generer_rituel_juvea(scores: Scores, attentes: List[str], exclusions: List[s
     actifs = list(set(cb.get("actifs", []) + cs.get("actifs", [])))
     return txt_ia, ess, comp, actifs, baumann_data
 
-# ATTENTION : Les "async" ont été retirés pour éviter le blocage du serveur Render
 @app.post("/api/diagnostic")
 def diagnostic(client: RequeteClient, request: Request, background_tasks: BackgroundTasks):
     try:
@@ -341,7 +341,7 @@ RÈGLES ABSOLUES :
     content_block.append({"type": "text", "text": req.message})
 
     payload = {
-        "model": "claude-sonnet-4-6", 
+        "model": "claude-3-5-sonnet-latest", 
         "max_tokens": 500, 
         "temperature": 0.5, 
         "system": prompt_system, 
@@ -370,7 +370,7 @@ def scan_inci_vision(req: InciRequete):
     prompt_system = f"Analyse l'image INCI pour le type {req.baumann_code}. Recommande via : {cat_str}. JSON uniquement."
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     b64_clean = req.image_b64.split(",")[-1] if "," in req.image_b64 else req.image_b64
-    payload = {"model": "claude-sonnet-4-6", "max_tokens": 800, "system": prompt_system, "messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_clean}}, {"type": "text", "text": "Analyse INCI."}]}]}
+    payload = {"model": "claude-3-5-sonnet-latest", "max_tokens": 800, "system": prompt_system, "messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_clean}}, {"type": "text", "text": "Analyse INCI."}]}]}
     try:
         r = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers, timeout=30)
         if r.status_code == 200:
