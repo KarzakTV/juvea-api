@@ -3,4 +3,3 @@ uvicorn
 pydantic
 requests
 resend
-shopify_webhook
