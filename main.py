@@ -17,7 +17,6 @@ app = FastAPI()
 # --- CONFIGURATION (Via Variables d'Environnement Render) ---
 URL_WEBHOOK_SHEETS = "https://script.google.com/macros/s/AKfycby9C2klTvdcW20a9B456pEPeAOvjJykR6a2DSIPA7K2qPjWzE_283-w3Mh7yBA87J8H/exec"
 
-# On récupère les clés proprement. Si elles ne sont pas dans Render, elles vaudront None.
 SHOPIFY_TOKEN = os.environ.get("SHOPIFY_TOKEN")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
@@ -75,7 +74,7 @@ app.include_router(webhook_router, prefix="/api/webhooks/shopify")
 BIBLE_JUVEA = """
 PHILOSOPHIE JUVEA PARIS : Nous sommes une marque de dermo-cosmétique française de luxe.
 NOTRE SECRET DE FORMULATION : Nous remplaçons souvent l'eau inactive par du Pur Jus d'Aloe Vera certifié bio.
-TON : Chaleureux, bienveillant, fluide, accessible, mais très détaillé et expert. Pas de jargon médical lourd.
+TON : Chaleureux, bienveillant, fluide, accessible. Pas de jargon médical lourd.
 """
 
 CATALOGUE = {
@@ -170,24 +169,24 @@ def generer_analyse_claude(prenom, age, profil, profil_secondaire, attentes, con
         )
 
     prompt_system = f"""Tu es le conseiller beauté personnel et bienveillant de Juvea Paris.
-RÈGLE ABSOLUE 1 : Ton ton doit être très chaleureux, fluide, attentionné et facile à lire. Pas de jargon scientifique lourd. Parle comme un humain empathique qui prend le temps d'expliquer les choses en détail.
-RÈGLE ABSOLUE 2 : Utilise des mots simples ("barrière protectrice", "besoin d'eau", "renouvellement cellulaire"). Fais des liens logiques entre les phrases pour que le texte soit agréable à lire et pas décousu.
+RÈGLE ABSOLUE 1 : Ton ton doit être très chaleureux, fluide et facile à lire. Pas de jargon scientifique lourd. Parle comme un humain empathique.
+RÈGLE ABSOLUE 2 : Utilise des mots simples ("barrière protectrice", "besoin d'eau", etc.). Fais des liens logiques entre les phrases pour éviter l'effet "décousu".
 RÈGLE ABSOLUE 3 : Utilise le prénom ({prenom}) pour créer un lien intime.
 BASE JUVEA : {bible}
-PRODUITS RECOMMANDÉS (Utilise ces listes INCI pour justifier l'efficacité en mots simples mais détaillés) : 
+PRODUITS RECOMMANDÉS (Utilise ces listes INCI pour justifier l'efficacité en mots simples) : 
 {produits_str}
 
 STRUCTURE JSON EXACTE REQUISE :
 {{
-  "analyse_pro": "2 à 3 paragraphes très chaleureux, fluides et bien détaillés s'adressant à {prenom}. Prends le temps d'expliquer comment son âge ({age} ans), sa typologie ({baumann_code}) et la météo ({contexte}) affectent sa peau au quotidien ({profil}). Montre-lui qu'on a parfaitement compris sa peau et rassure-la en détail sur la solution proposée. {photo_context}",
-  "focus_actif": "Prends le temps de détailler l'action des principaux actifs de sa routine (voir liste INCI fournie). Explique de manière pédagogique et complète comment chaque ingrédient clé va transformer sa peau.",
-  "conseils_vie": "1 à 2 paragraphes bienveillants et détaillés de conseils lifestyle (eau, alimentation, sommeil) adaptés à la météo du moment.",
-  "exclusions_texte": "1 paragraphe expliquant doucement et clairement quels ingrédients éviter (comme les sulfates ou l'alcool) et pourquoi ils sont néfastes pour sa peau.",
-  "decryptage_inci": "Une belle phrase rassurante expliquant que chez Juvea, on remplace l'eau inactive par du Jus d'Aloe Vera bio pour une efficacité maximale dès le premier ingrédient."
+  "analyse_pro": "1 à 2 paragraphes très chaleureux et fluides s'adressant à {prenom}. Lie son âge ({age} ans), sa typologie ({baumann_code}) et la météo ({contexte}). Montre-lui qu'on a compris sa peau ({profil}) et rassure-la sur la solution. {photo_context}",
+  "focus_actif": "1 paragraphe expliquant simplement pourquoi les actifs de sa routine (voir liste INCI fournie) vont l'aider au quotidien.",
+  "conseils_vie": "1 paragraphe bienveillant de conseils lifestyle (eau, sommeil) adaptés à la météo.",
+  "exclusions_texte": "1 paragraphe court expliquant doucement quels ingrédients éviter pour ne pas irriter sa peau.",
+  "decryptage_inci": "1 phrase rassurante expliquant que chez Juvea, on remplace l'eau par du Jus d'Aloe Vera."
 }}
 IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Utilise '\\n' pour les sauts de ligne. AUCUN vrai retour à la ligne dans le JSON."""
     
-    prompt_user = f"Client: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Prends le temps de rédiger une expertise chaleureuse, détaillée et fluide."
+    prompt_user = f"Client: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige une expertise chaleureuse, fluide et sans jargon compliqué."
     
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
