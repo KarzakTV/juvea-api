@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "juvea-paris",
+  "private_key_id": "de09344aec8984ceed87864b542a8a66d7b83861",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDXkDCvPPA8FaDg\nQX1xDfJJsXMH5pb92D1LXxh7P4x7EjnSCR1K+IykWI4vLuCGWFbuFPMIZzLeK2ZR\nNnDvYiLGoC3y8eywbbtAtcay9oAQyQ5DdqyPAIThL3OhR13m39QAqCSDUU+63M4g\nWJ2xXDPH0+ajrAQiMb2tsqpEWy/pMJSzfuFJsGkED7KMffT7tyykG8p8I5Sq58/V\nEY2niCgkWK0ZzREh/YQZJMe9mH8qn1lxqHvFLqSphfTCSqfpA1UG7ISWo/F0G7Rx\n+TaOz4VYiVd/3/s/vC1/Ys9tOjnyrdcESnDm0KJCJ92BKTyTrhVZAH5Tjq4dslZG\nLdWUV4E9AgMBAAECggEAAfx14Mar6jEDBoK/Kpf0jZnGA89fDXxp08RofknSwn29\nP/JuDVDWqOf/YJXRVn0nYrIZa10m3C9KfGdgqU/+UbxL/ny2QwmyMgsxIL9Oy3jM\nYEvbLkXuTRqp39VMWyV6USQ7eLGt2jyqsiRNSNy4eTgHKSbOjFfor1pIIXE1DI3t\n9Vsero69tlAx6yJnsYZNLaJjl/oYmmlfTq+rPAtPhoww0YPe0UPE+Dto3AZeK+o2\nEycF8ZefxbmUop8KjvMCECkaIf3gRjaDyBuGs6TawjR+zMN7BFb1pTpmqTFM0yXI\n7J8QtgliU/nOc5DvqxN8X0Xvf6gQd/qFO5Rr63TEAQKBgQDtHE+YJzdFJCVxJsQ7\nq67hd4EpDug/bxrFNXBSQC0EZg4SW8cpk/7QeNBD8kyRFmqHT+Vy4ZOAV9FoPGF8\nXBks115uSPGI1mGdnbFycimJzDaKl9vGLSjP3vY+/FFKsnfMj3ooBc1Y9/JLqcey\n2Cb6+wgI66oalacaAGMIf9TVPQKBgQDovHAHB6CvmwVPm7nsjh8Zyl5KiDhlG2v9\n/IFdGhgFQhF4jG0USY3q2Dx7C9SyVLz/K56TtCirjvbZjahmVargs1URtNFvTEUw\nMWWWNg+xSjUUZq3Ab7SWls1QPLI89g8MuMbRIm4Hncv+2Xwa2BmZL9IaeQPKDc23\nTUB3tPAcAQKBgQDUTG/7xMkY8BdSK6qx3rNzjuOnloBeI6Wtg35xNqLX+GSLDX/S\ne39Au5uF6tGhapexVdkUNmMyG+8UTFPg3DlyS9dyGX+hzImUbVgvJ4aHqb//8Z5G\n37JWBMUoehRzND5Nev2eDivhiAd6taZnPGASgmecTR1+NhZrEoOZXZN75QKBgQDM\nVHR+l4HJ6u40wGHxf61qdTNneEUa74JWkRP6a2hfZWv1TESQJSvF3WbsGKz6jE8K\nMH+e6fMy++dZhXctsVS+xnOPghLGBk5QS24G/Ru16ZLEgIlXhDsmYuuK4F8UCmuY\nHbnf7rxvT2jELKk64DNJPKTXvRtIj+nmXpqU/nQ4AQKBgQCUTrJSe4NFszvTckl/\njBTobVXZ+66A0422y/CYog1aqt5NUpqvSSo02iWTQDiG6GVfm+hycxzCtBLf9HTs\na4JmDU9YCuH7CubbimH6nvsJzq6bSw5YcklyZxrob/KhDknnJTI+8Pkm72E7PUcO\nvreGTiImNyVa2y3Aye3fxqFSlg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@juvea-paris.iam.gserviceaccount.com",
+  "client_id": "103644239787035728384",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40juvea-paris.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
