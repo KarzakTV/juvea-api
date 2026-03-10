@@ -62,7 +62,7 @@ class SosRequete(BaseModel):
     baumann_profil: str
     environnement: str
     prenom: str = "Client"
-    image_b64: Optional[str] = None # Ajout de l'image optionnelle pour SOS Peau
+    image_b64: Optional[str] = None
 
 class InciRequete(BaseModel):
     image_b64: str
@@ -74,48 +74,48 @@ app.include_router(webhook_router, prefix="/api/webhooks/shopify")
 
 BIBLE_JUVEA = """
 PHILOSOPHIE JUVEA PARIS : Nous sommes une marque de dermo-cosmétique française de luxe.
-NOTRE SECRET DE FORMULATION : Nous remplaçons l'eau inactive par du Pur Jus d'Aloe Vera certifié bio.
+NOTRE SECRET DE FORMULATION : Nous remplaçons souvent l'eau inactive par du Pur Jus d'Aloe Vera certifié bio.
 NOS ACTIFS PHARES : Bidens Pilosa, Lactobacillus Ferment, Acide Glycolique & Salicylique.
 TON : Empathique, luxueux, clinique, sur-mesure.
 """
 
 CATALOGUE = {
     "purete": {
-        "nettoyant": {"texte": "Eau Micellaire Botanique Purifiante à l'extrait de Camomille", "id": 111111111111, "image": "", "safe_grossesse": True},
-        "lotion": {"texte": "Lotion Exfoliante à l'Acide Glycolique & Canneberge Bio", "id": 222222222222, "image": "", "safe_grossesse": False},
-        "serum": {"texte": "Sérum Purifiant Intense Anti-Imperfections (Acide Salicylique & Arbre à Thé)", "id": 333333333333, "image": "", "safe_grossesse": False},
-        "creme": {"texte": "Gel Hydratant Équilibrant sans huile au Zinc PCA", "id": 444444444444, "image": "", "safe_grossesse": True},
-        "spf": {"texte": "Bouclier Solaire Minéral SPF50", "id": 555555555555, "image": "", "safe_grossesse": True},
-        "actifs": ["Acide Salicylique", "Zinc PCA", "Acide Glycolique", "Huile d'Arbre à Thé"]
+        "nettoyant": {"texte": "Soin anti-acné", "id": 111111111111, "image": "", "safe_grossesse": False, "inci": "Aloe Barbadensis (Aloe) Leaf Juice, Glycerin, Kaolin, Argania Spinosa (Argan) Kernel Oil, Melaleuca Alternifolia (Tea Tree) Leaf Oil, Pentylene Glycol, Polyglyceryl-6 Stearate, Cetearyl Alcohol, Isoamyl Laurate, Salicylic Acid, Sodium PCA, Propanediol, Potassium Hydroxide, Xanthan Gum, Polyglyceryl-6 Behenate, Parfum/Fragrance, Cellulose, Palmitic Acid, Stearic Acid, Aqua/Water, Rhodomyrtus Tomentosa (Rose Myrtle) Fruit Extract, Ribes Grossularia (Gooseberry) Fruit Extract, Vaccinium Myrtillus (Blueberry) Fruit Extract, Ascorbyl Palmitate, Tocopherol, Charcoal Powder, Limonene, Citral, Linalool, Citronellol, Geraniol"},
+        "lotion": {"texte": "Lotion Tonique Exfoliante à l'Acide Glycolique", "id": 222222222222, "image": "", "safe_grossesse": False, "inci": "Aqua, Glycolic Acid, Glycerin, Potassium Hydroxide, Betaine, Sodium PCA, Sodium Levulinate, Phenethyl Alcohol, Sodium Benzoate, Vaccinium Macrocarpon (Cranberry) Fruit Extract, Vaccinium Vitis-Idaea (Lingonberry) Fruit Extract, Alcohol"},
+        "serum": {"texte": "Sérum Gel Niacinamide", "id": 333333333333, "image": "", "safe_grossesse": True, "inci": "Aqua/Water, Alcohol, Niacinamide, Glycerin, Cellulose Gum, Algin, Potassium Hydroxide, Parfum/Fragrance, Sodium Phytate, Ginkgo Biloba (Ginkgo) Leaf Extract, Citric Acid, Sodium Benzoate, Potassium Sorbate"},
+        "creme": {"texte": "Gel Hydratant Sans Huile", "id": 444444444444, "image": "", "safe_grossesse": True, "inci": "Aloe Barbadensis (Aloe) Leaf Juice, Glycerin, Pentylene Glycol, Butylene Glycol, Betaine, Sclerotium Gum, Zinc PCA, Aqua, Propanediol, Parfum, Nasturtium Officinale (Watercress) Flower/Leaf Extract, Sodium Phytate, Potassium Hydroxide, Sodium Hyaluronate, Rhamnose, Glucose, Glucuronic Acid, Limonene, Linalool, Geraniol, Citral"},
+        "spf": {"texte": "Protection solaire SPF50 Stick, avec teinte", "id": 555555555555, "image": "", "safe_grossesse": True, "inci": "Zinc Oxide, Oryza Sativa (Rice) Bran Oil, Vegetable Oil, Dicaprylyl Carbonate, Isoamyl Laurate, CI 77891 (Titanium Dioxide), Helianthus Annuus (Sunflower) Seed Wax, Oryza Sativa (Rice) Bran Wax, Rhus Succedanea Fruit Wax, Hydrated Silica, Simmondsia Chinensis (Jojoba) Seed Oil, Silica, Jojoba Esters, Theobroma Cacao (Cocoa) Seed Butter, Parfum/Fragrance, Tocopherol, Hippophae Rhamnoides (Sea Buckthorn) Fruit Oil, Nigella Sativa (Black Cumin) Seed Oil, CI 77491, CI 77492, CI 77499 (Iron Oxides), Glycolipids, Glycosphingolipids, Aqua/Water, Vanillin, Terpineol, Linalyl Acetate, Anethole, Geraniol"},
+        "actifs": ["Acide Salicylique", "Zinc PCA", "Acide Glycolique", "Huile d'Arbre à Thé", "Niacinamide"]
     },
     "temps": {
-        "nettoyant": {"texte": "Lait Nettoyant Douceur Botanique (Karité & Argan)", "id": 666666666666, "image": "", "safe_grossesse": True},
-        "lotion": {"texte": "Essence Repulpante Acide Hyaluronique & Thé Blanc", "id": 777777777777, "image": "", "safe_grossesse": True},
-        "serum": {"texte": "Sérum Botanique Phyto-Rétinol (Bidens Pilosa & Jojoba)", "id": 888888888888, "image": "", "safe_grossesse": True},
-        "yeux": {"texte": "Élixir Contour des Yeux Phyto-Rétinol & Marron d'Inde", "id": 999999999999, "image": "", "safe_grossesse": True},
-        "creme": {"texte": "Crème de Jour Restructurante Anti-Âge à la Sève de Bouleau", "id": 101010101010, "image": "", "safe_grossesse": True},
-        "spf": {"texte": "Bouclier Solaire Minéral SPF50", "id": 555555555555, "image": "", "safe_grossesse": True},
+        "nettoyant": {"texte": "Lait Nettoyant Doux", "id": 666666666666, "image": "", "safe_grossesse": True, "inci": "Aqua, Helianthus Annuus (Sunflower) Seed Oil, Sucrose Distearate, Glycerin, Dicaprylyl Carbonate, Isoamyl Laurate, Sucrose Stearate, Butyrospermum Parkii (Shea) Butter, Sodium Levulinate, Palmitic Acid, Stearic Acid, Xanthan Gum, Parfum, Sodium Anisate, Argania Spinosa (Argan) Kernel Oil, Persea Gratissima (Avocado) Oil, Simmondsia Chinensis (Jojoba) Seed Oil, Lactic Acid, Centaurea Cyanus (Cornflower) Flower Extract, Paeonia Lactiflora (Peony) Root Extract, Ascorbyl Palmitate, Sodium Phytate, Tocopherol, Linalool, Limonene, Benzyl Salicylate, Citral"},
+        "lotion": {"texte": "Gel Booster Double Hydratation + AH", "id": 777777777777, "image": "", "safe_grossesse": True, "inci": "Aloe Barbadensis (Aloe) Leaf Juice, Pentylene Glycol, Butylene Glycol, Glycerin, Sodium PCA, Aqua/Water, Propanediol, Cellulose Gum, Parfum/Fragrance, Algin, Camellia Sinensis (White Tea) Leaf Extract, Salvia Officinalis (Sage) Leaf Extract, Hydrolyzed Hyaluronic Acid, Lactic Acid, Sodium Hyaluronate, Sodium Phytate, Rhamnose, Glucose, Glucuronic Acid"},
+        "serum": {"texte": "Crème hydratante alternative au rétinol", "id": 888888888888, "image": "", "safe_grossesse": True, "inci": "Aloe Barbadensis (Aloe) Leaf Juice, Simmondsia Chinensis (Jojoba) Seed Oil, Glycerin, Pentylene Glycol, Polyglyceryl-6 Stearate, Cetearyl Alcohol, Aqua/Water, Sodium PCA, Dipalmitoyl Hydroxyproline, Astrocaryum Murumuru Seed Butter, Hippophae Rhamnoides (Sea Buckthorn) Fruit Extract, Gossypium Herbaceum Seed Oil, Propanediol, Bidens Pilosa Extract, Dicaprylyl Carbonate, Polyglyceryl-6 Behenate, Parfum/Fragrance, Linum Usitatissimum Seed Oil, Mangifera Indica (Mango) Seed Butter, Caprylic/Capric Triglyceride, Coco-Caprylate, Xanthan Gum, Octyldodecanol, Palmitic Acid, Stearic Acid, Tocopherol, Ascorbyl Palmitate, Potassium Hydroxide, Rhodomyrtus Tomentosa (Rose Myrtle) Fruit Extract, Hydrolyzed Hyaluronic Acid, Sodium Hyaluronate, Sodium Phytate, Alteromonas Ferment Extract, Phenethyl Alcohol, Geraniol, Citronellol, Pelargonium Graveolens Flower Oil, Linalool, Citral"},
+        "yeux": {"texte": "Sérum contour des yeux alternatif au rétinol", "id": 999999999999, "image": "", "safe_grossesse": True, "inci": "Aloe Barbadensis (Aloe) Leaf Juice, Glycerin, Coconut Alkanes, Pentylene Glycol, Aqua/Water, Simmondsia Chinensis (Jojoba) Seed Oil, Sodium PCA, Polyglyceryl-6 Stearate, Glyceryl Stearate Citrate, Borago Officinalis (Borage) Seed Oil, Caprylic/Capric Triglyceride, Dipalmitoyl Hydroxyproline, Ricinus Communis (Castor) Seed Oil, Astrocaryum Murumuru Seed Butter, Gossypium Herbaceum Seed Oil, Bidens Pilosa Extract, Linum Usitatissimum Seed Oil, Parfum/Fragrance, CI 77163 (Bismuth Chloride Oxide), Polyglyceryl-6 Behenate, Rhus Verniciflua Peel Cera/Rhus Succedanea Fruit Cera, Xanthan Gum, Aesculus Hippocastanum (Horse Chestnut) Seed Extract, Cellulose, Tocopherol, Ascorbyl Palmitate, Potassium Hydroxide, Mangifera Indica (Mango) Seed Butter, Hydrolyzed Hyaluronic Acid, Sodium Hyaluronate, Sodium Phytate, Octyldodecanol, Alteromonas Ferment Extract, Phenethyl Alcohol, Escin, Geraniol, Citronellol, Pelargonium Graveolens Flower Oil, Linalool, Citral"},
+        "creme": {"texte": "Crème de jour anti-âge", "id": 101010101010, "image": "", "safe_grossesse": True, "inci": "Aloe Barbadensis (Aloe) Leaf Juice, Simmondsia Chinensis (Jojoba) Seed Oil, Glycerin, Pentylene Glycol, Polyglyceryl-6 Stearate, Cetearyl Alcohol, Betaine, Isoamyl Laurate, Aqua, Butyrospermum Parkii (Shea) Butter, Parfum, Caprylic/Capric Triglyceride, Polyglyceryl-6 Behenate, Cellulose, CI 77891 (Titanium Dioxide), Mica, Palmitic Acid, Stearic Acid, Vaccinium Vitis-Idaea (Lingonberry) Fruit Extract, Xanthan Gum, Echinacea Purpurea (Coneflower) Flower/Leaf/Stem Extract, Ribes Nigrum (Black Currant) Fruit Extract, Sambucus Nigra (Elder) Flower Extract, Ascorbyl Palmitate, Persea Gratissima (Avocado) Oil, Tocopherol, Hydrolyzed Hyaluronic Acid, Potassium Hydroxide, Sodium Hyaluronate, Sodium Phytate, Alteromonas Ferment Extract, Phenethyl Alcohol, Tin Oxide, Alcohol, Benzyl Salicylate, Limonene, Citral, Linalool"},
+        "spf": {"texte": "Protection solaire SPF50 Stick, avec teinte", "id": 555555555555, "image": "", "safe_grossesse": True, "inci": "Zinc Oxide, Oryza Sativa (Rice) Bran Oil, Vegetable Oil, Dicaprylyl Carbonate, Isoamyl Laurate, CI 77891 (Titanium Dioxide), Helianthus Annuus (Sunflower) Seed Wax, Oryza Sativa (Rice) Bran Wax, Rhus Succedanea Fruit Wax, Hydrated Silica, Simmondsia Chinensis (Jojoba) Seed Oil, Silica, Jojoba Esters, Theobroma Cacao (Cocoa) Seed Butter, Parfum/Fragrance, Tocopherol, Hippophae Rhamnoides (Sea Buckthorn) Fruit Oil, Nigella Sativa (Black Cumin) Seed Oil, CI 77491, CI 77492, CI 77499 (Iron Oxides), Glycolipids, Glycosphingolipids, Aqua/Water, Vanillin, Terpineol, Linalyl Acetate, Anethole, Geraniol"},
         "actifs": ["Phyto-Rétinol (Bidens Pilosa)", "Acide Hyaluronique", "Sève de Bouleau", "Escine"]
     },
     "eclat": {
-        "nettoyant": {"texte": "Gel Nettoyant Éclat aux Baies Nordiques", "id": 121212121212, "image": "", "safe_grossesse": True},
-        "lotion": {"texte": "Concentré Peeling Doux AHA & Thé Blanc", "id": 131313131313, "image": "", "safe_grossesse": False},
-        "serum": {"texte": "Sérum Perfecteur de Pigment à l'Alpha-Arbutine", "id": 141414141414, "image": "", "safe_grossesse": False},
-        "creme": {"texte": "Gel Booster Antioxydant au Ginkgo Biloba", "id": 151515151515, "image": "", "safe_grossesse": True},
-        "spf": {"texte": "Bouclier Solaire Minéral Teinté SPF50", "id": 555555555555, "image": "", "safe_grossesse": True},
+        "nettoyant": {"texte": "Nettoyant visage éclat radieux", "id": 121212121212, "image": "", "safe_grossesse": True, "inci": "Aloe Barbadensis (Aloe) Leaf Juice, Coco-Glucoside, Cocamidopropyl Betaine, Glycerin, Aqua/Water, Xanthan Gum, Propanediol, Rubus Fruticosus (Blackberry) Fruit Extract, Sodium PCA, Sodium Levulinate, Lactic Acid, Acacia Senegal Gum, Sodium Anisate, Acorus Calamus (Sweet Flag) Root Extract, Parfum/Fragrance, Salvia Officinalis (Sage) Leaf Extract, Rhamnose, CI 77491 (Iron Oxides), Glucose, Glucuronic Acid, Arctium Lappa (Burdock) Root Extract, Citric Acid, Sodium Benzoate, Potassium Sorbate, Linalool, Limonene"},
+        "lotion": {"texte": "Concentré Peeling AHA", "id": 131313131313, "image": "", "safe_grossesse": False, "inci": "Aqua/Water, Lactic Acid, Pentylene Glycol, Potassium Hydroxide, Butylene Glycol, Glycerin, Sodium Hyaluronate, Camellia Sinensis (White Tea) Leaf Extract, Salvia Officinalis (Sage) Leaf Extract"},
+        "serum": {"texte": "Sérum perfecteur de pigment", "id": 141414141414, "image": "", "safe_grossesse": False, "inci": "Aqua, Glycerin, Caprylic/Capric Triglyceride, Helianthus Annuus (Sunflower) Seed Oil, Pentylene Glycol, Cetearyl Alcohol, Sodium PCA, Glyceryl Stearate Citrate, Alpha-Arbutin, Astrocaryum Murumuru Seed Butter, Gossypium Herbaceum Seed Oil, Bidens Pilosa Extract, Cellulose, Linum Usitatissimum Seed Oil, Parfum, Xanthan Gum, Ascorbyl Palmitate, Lactic Acid, Ascophyllum Nodosum Extract, Sodium Phytate, Hydrolyzed Hyaluronic Acid, Sodium Hyaluronate, Tocopherol, Limonene, Citrus Limon Peel Oil, Pogostemon Cablin Oil, Linalool, Juniperus Virginiana Oil, Cedrus Atlantica Oil/Extract, Pinene, Vanillin, Menthol, Citral, Beta-Caryophyllene"},
+        "creme": {"texte": "Gel Booster au ginkgo antioxydant", "id": 151515151515, "image": "", "safe_grossesse": True, "inci": "Aqua, Alcohol, Glycerin, Carrageenan, Cellulose Gum, Ceratonia Siliqua Gum, Parfum, Glucose, Ginkgo Biloba (Ginkgo) Leaf Extract, Citric Acid, Sodium Phytate, Camellia Sinensis (Green Tea) Leaf Extract, Potassium Hydroxide, Quercus Robur (Oak) Bark Extract, Vitis Vinifera (Grape) Seed Extract, Sodium Benzoate, Potassium Sorbate"},
+        "spf": {"texte": "Protection solaire SPF50 Stick, avec teinte", "id": 555555555555, "image": "", "safe_grossesse": True, "inci": "Zinc Oxide, Oryza Sativa (Rice) Bran Oil, Vegetable Oil, Dicaprylyl Carbonate, Isoamyl Laurate, CI 77891 (Titanium Dioxide), Helianthus Annuus (Sunflower) Seed Wax, Oryza Sativa (Rice) Bran Wax, Rhus Succedanea Fruit Wax, Hydrated Silica, Simmondsia Chinensis (Jojoba) Seed Oil, Silica, Jojoba Esters, Theobroma Cacao (Cocoa) Seed Butter, Parfum/Fragrance, Tocopherol, Hippophae Rhamnoides (Sea Buckthorn) Fruit Oil, Nigella Sativa (Black Cumin) Seed Oil, CI 77491, CI 77492, CI 77499 (Iron Oxides), Glycolipids, Glycosphingolipids, Aqua/Water, Vanillin, Terpineol, Linalyl Acetate, Anethole, Geraniol"},
         "actifs": ["Alpha-Arbutine", "Acides de Fruits (AHA)", "Ginkgo Biloba", "Vitamine C"]
     },
     "apaisement": {
-        "nettoyant": {"texte": "Démaquillant Biphasé Haute Tolérance à l'Argousier", "id": 161616161616, "image": "", "safe_grossesse": True},
-        "serum": {"texte": "Sérum Gélifié aux Prébiotiques Bioactifs (Lactobacillus)", "id": 171717171717, "image": "", "safe_grossesse": True},
-        "huile": {"texte": "Huile de Soin Nourrissante aux Omégas (Jojoba & Argousier)", "id": 181818181818, "image": "", "safe_grossesse": True},
-        "creme": {"texte": "Baume de Nuit Réparateur aux Céramides & Cacao", "id": 191919191919, "image": "", "safe_grossesse": True},
-        "spf": {"texte": "Bouclier Solaire Minéral SPF50", "id": 555555555555, "image": "", "safe_grossesse": True},
+        "nettoyant": {"texte": "Démaquillant BiPhasic, sans parfum", "id": 161616161616, "image": "", "safe_grossesse": True, "inci": "Aloe Barbadensis (Aloe) Leaf Juice, Isoamyl Laurate, Coco-Caprylate/Caprate, Butylene Glycol, Glycerin, Coconut Alkanes, Sodium Chloride, Aqua, Sodium Levulinate, Tocopherol, Sodium Benzoate, Caprylyl/Capryl Glucoside, Lactic Acid, Sodium Phytate, Chamomilla Recutita (Camomile) Flower Extract, Hippophae Rhamnoides (Sea-Buckthorn) Fruit Extract, Rubus Idaeus (Raspberry) Fruit Extract, Capsicum Annuum (Paprika) Fruit Extract, Sodium Hyaluronate, Helianthus Annuus (Sunflower) Seed Oil, Citric Acid, Potassium Sorbate, Rosmarinus Officinalis (Rosemary) Leaf Extract"},
+        "serum": {"texte": "Sérum Gel aux Prébiotiques Bioactifs", "id": 171717171717, "image": "", "safe_grossesse": True, "inci": "Aqua/Water, Alcohol, Glycerin, Sodium PCA, Cellulose Gum, Algin, Lactobacillus Ferment Lysate, Parfum/Fragrance, Sodium Phytate, Potassium Sorbate, Sodium Benzoate, Hydrolyzed Hyaluronic Acid, Sodium Hyaluronate, Pogostemon Cablin Oil"},
+        "huile": {"texte": "Huile visage nourrissante", "id": 181818181818, "image": "", "safe_grossesse": True, "inci": "Simmondsia Chinensis (Jojoba) Seed Oil, Decyl Cocoate, Solanum Lycopersicum (Tomato) Fruit Extract, Hippophae Rhamnoides (Sea Buckthorn) Fruit Extract, Undecane, Tridecane, Argania Spinosa (Argan) Kernel Oil, Rubus Chamaemorus (Cloudberry) Fruit Extract, Tocopherol, Persea Gratissima (Avocado) Oil, Prunus Amygdalus (Almond) Dulcis Oil, Prunus Armeniaca (Apricot) Kernel Oil, Parfum, Borago Officinalis (Borage) Seed Oil, Oenothera Biennis (Evening Primrose) Oil, Prunus Domestica (Plum) Seed Oil, Vaccinium Myrtillus (Blueberry) Seed Oil, Linalool, Limonene, Citronellol, Geraniol"},
+        "creme": {"texte": "Crème de nuit barrière aux céramides", "id": 191919191919, "image": "", "safe_grossesse": True, "inci": "Jus de feuille d'Aloe Barbadensis (Aloe), Beurre de graines de Theobroma Cacao (Cacao), Huile de graines de Simmondsia Chinensis (Jojoba), Huile de graines d'Helianthus Annuus (Tournesol), Carbonate de dicaprylyle, Pentylène glycol, Stéarate de polyglycéryl-6, Alcool cétéarylique, Glycérine, Cire de graines d'Helianthus Annuus (Tournesol), Beurre de Butyrospermum Parkii (Karité), Insaponifiables d'huile d'Olea Europaea (Olive), PCA de sodium, Acide palmitique, Acide stéarique, Béhénate de polyglycéryl-6, Parfum, Cellulose, Cire d'écorce de Rhus Verniciflua / Cire de fruit de Rhus Succedanea, Résine de Shorea Robusta, Hippophae Rhamnoides (Argousier) Extrait de fruit, Gomme xanthane, Extrait de racine de Paeonia lactiflora (Pivoine), Extrait de fruit de Sambucus nigra (Sureau noir), Huile de graines de Vaccinium macrocarpon (Canneberge), Glycosphingolipides, Glycolipides, Aqua, Phytate de sodium, Palmitate d'ascorbyle, Tocophérol, Acide lactique, Hyaluronate de sodium, Linalol, Limonène"},
+        "spf": {"texte": "Protection solaire SPF50 Stick, avec teinte", "id": 555555555555, "image": "", "safe_grossesse": True, "inci": "Zinc Oxide, Oryza Sativa (Rice) Bran Oil, Vegetable Oil, Dicaprylyl Carbonate, Isoamyl Laurate, CI 77891 (Titanium Dioxide), Helianthus Annuus (Sunflower) Seed Wax, Oryza Sativa (Rice) Bran Wax, Rhus Succedanea Fruit Wax, Hydrated Silica, Simmondsia Chinensis (Jojoba) Seed Oil, Silica, Jojoba Esters, Theobroma Cacao (Cocoa) Seed Butter, Parfum/Fragrance, Tocopherol, Hippophae Rhamnoides (Sea Buckthorn) Fruit Oil, Nigella Sativa (Black Cumin) Seed Oil, CI 77491, CI 77492, CI 77499 (Iron Oxides), Glycolipids, Glycosphingolipids, Aqua/Water, Vanillin, Terpineol, Linalyl Acetate, Anethole, Geraniol"},
         "actifs": ["Céramides Végétaux", "Prébiotiques (Lactobacillus)", "Huile d'Argousier", "Jus d'Aloe Vera"]
     }
 }
 
-SERUM_UNIVERSEL = {"texte": "Sérum Universel Hydratation Profonde (Acide Hyaluronique Pur)", "id": 999999888888, "image": "", "safe_grossesse": True}
+SERUM_UNIVERSEL = {"texte": "Sérum Universel Hydratation Profonde", "id": 999999888888, "image": "", "safe_grossesse": True, "inci": "Aloe Barbadensis Leaf Juice, Sodium Hyaluronate (Multi-Molecular Weight), Panthenol, Glycerin, Pentylene Glycol."}
 
 def calculer_baumann(scores: Scores):
     b_od = "O" if scores.purete > 7 else "D"   
@@ -161,39 +161,42 @@ def formater_donnees_environnementales(env: Environnement, client_ip: str):
         return f"{env.temperature}°C, {env.humidite}% d'humidité, Indice UV {env.uv}"
     return determiner_climat_par_ip(client_ip)
 
-def generer_analyse_claude(prenom, age, profil, profil_secondaire, attentes, contexte, baumann_code, bible, scores_dict, ia_raw_scores):
+def generer_analyse_claude(prenom, age, profil, profil_secondaire, attentes, contexte, baumann_code, bible, scores_dict, ia_raw_scores, produits_str):
     
     photo_context = ""
     if ia_raw_scores:
         photo_context = (
             f"La note IA de la caméra biométrique indique (sur 100) : Rides {ia_raw_scores.get('rides', 'N/A')}, Taches {ia_raw_scores.get('taches', 'N/A')}, "
-            f"Rougeurs {ia_raw_scores.get('rougeurs', 'N/A')}, Pores {ia_raw_scores.get('pores', 'N/A')}. Tu dois les mentionner pour prouver l'analyse."
+            f"Rougeurs {ia_raw_scores.get('rougeurs', 'N/A')}, Pores {ia_raw_scores.get('pores', 'N/A')}. Utilise ces données pour prouver ton analyse de façon simple."
         )
 
     prompt_system = f"""Tu es l'IA Experte en Dermo-Cosmétique de Juvea Paris.
 RÈGLE ABSOLUE 1 : Ne propose JAMAIS de consulter un cabinet physique Juvea. Ne propose un médecin que si la situation est grave.
-RÈGLE ABSOLUE 2 : Ton ton est LUXUEUX, RASSURANT et HAUTEMENT CLINIQUE.
-RÈGLE ABSOLUE 3 : Tu dois être CONCIS, IMPACTANT et ALLER À L'ESSENTIEL. Ne rédige surtout pas un roman. Le client veut lire une expertise rapide et claire.
-BASE DE CONNAISSANCES :
+RÈGLE ABSOLUE 2 : Ton ton est LUXUEUX, RASSURANT, PERSONNALISÉ et PÉDAGOGIQUE. Utilise le prénom du client ({prenom}) pour t'adresser directement à lui (ex: "Bonjour {prenom}, à {age} ans..."). Vulgarise les termes scientifiques compliqués (parle de "barrière protectrice" au lieu de termes médicaux trop poussés).
+RÈGLE ABSOLUE 3 : Tu dois être CONCIS, IMPACTANT et ALLER À L'ESSENTIEL.
+BASE DE CONNAISSANCES JUVEA :
 {bible}
+PRODUITS JUVEA SÉLECTIONNÉS POUR CE CLIENT ET LEURS INCI (Sers-toi de ces listes INCI pour justifier tes choix) : 
+{produits_str}
+
 STRUCTURE JSON EXACTE REQUISE :
 {{
-  "analyse_pro": "1 ou 2 paragraphes très concis liant l'âge ({age} ans), le climat ({contexte}) et les problèmes ({profil}, {profil_secondaire}) à la typologie {baumann_code}. {photo_context}",
-  "focus_actif": "1 paragraphe synthétique expliquant l'action biologique de nos actifs recommandés.",
-  "conseils_vie": "1 paragraphe court sur l'hygiène de vie globale et la météo.",
-  "exclusions_texte": "1 paragraphe court proscrivant les ingrédients irritants.",
-  "decryptage_inci": "1 phrase claire expliquant que le Pur Jus d'Aloe Vera remplace l'eau chez Juvea."
+  "analyse_pro": "1 à 2 paragraphes maximum s'adressant à {prenom}. Explique simplement comment son âge, la météo ({contexte}) et sa typologie ({baumann_code}) affectent sa peau ({profil}, {profil_secondaire}). Explique pourquoi la routine de soins est la solution idéale pour lui. {photo_context}",
+  "focus_actif": "1 paragraphe synthétique vulgarisant l'action des actifs (en t'appuyant explicitement sur les listes INCI fournies) présents dans les produits recommandés ci-dessus.",
+  "conseils_vie": "1 paragraphe court sur l'hygiène de vie et la météo s'adressant à {prenom}.",
+  "exclusions_texte": "1 paragraphe court proscrivant les ingrédients irritants de façon simple.",
+  "decryptage_inci": "1 phrase claire expliquant à {prenom} que nous utilisons des ingrédients de qualité et que le premier ingrédient INCI est souvent l'Aloe Vera plutôt que l'eau."
 }}
 IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Tu dois IMPÉRATIVEMENT utiliser '\\n' pour les sauts de ligne à l'intérieur de tes valeurs. NE FAIS AUCUN VRAI RETOUR À LA LIGNE dans les chaînes de caractères du JSON."""
     
-    prompt_user = f"Patiente: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige l'expertise de façon concise."
+    prompt_user = f"Client: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige l'expertise vulgarisée et personnalisée en justifiant avec les INCI."
     
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
     payload = {
         "model": "claude-sonnet-4-6",
         "max_tokens": 2500, 
-        "temperature": 0.4, 
+        "temperature": 0.5, 
         "system": prompt_system, 
         "messages": [
             {"role": "user", "content": prompt_user}
@@ -201,11 +204,11 @@ IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Tu dois IMPÉRATIVEMENT uti
     }
     
     fallback = {
-        "analyse_pro": f"Vos marqueurs liés à votre âge ({age} ans) et votre environnement ({contexte}) indiquent que votre film protecteur est fragilisé, ce qui accentue {profil} et {profil_secondaire}. Votre typologie {baumann_code} le confirme. Nous consolidons les fondations de votre épiderme.",
-        "focus_actif": "Nos alternatives végétales hautement dosées agissent comme des messagers cellulaires.",
-        "conseils_vie": f"Protégez-vous des agressions climatiques ({contexte}) et régulez votre sommeil.",
-        "exclusions_texte": "Cessez l'utilisation de tensioactifs agressifs qui décapent la peau.",
-        "decryptage_inci": "L'eau est inactive. Le Jus d'Aloe Vera bio de nos formules offre une hydratation cellulaire active."
+        "analyse_pro": f"Bonjour {prenom}, vos marqueurs liés à votre âge ({age} ans) et votre environnement ({contexte}) indiquent que votre barrière protectrice est fragilisée, ce qui accentue les problèmes liés à {profil}. Votre typologie {baumann_code} le confirme. C'est pourquoi les soins formulés sur-mesure sont parfaits pour consolider les fondations de votre peau.",
+        "focus_actif": "Les alternatives végétales hautement dosées de vos produits agissent directement au cœur de vos cellules pour des résultats visibles.",
+        "conseils_vie": f"Protégez-vous des agressions climatiques ({contexte}) et veillez à avoir un sommeil réparateur, {prenom}.",
+        "exclusions_texte": "Évitez absolument l'utilisation de nettoyants trop agressifs qui décapent votre peau.",
+        "decryptage_inci": f"Chez Juvea, {prenom}, l'eau inactive est souvent remplacée par du Jus d'Aloe Vera bio en premier ingrédient INCI pour vous offrir une hydratation maximale."
     }
     
     try:
@@ -278,7 +281,13 @@ def generer_rituel_juvea(scores: Scores, attentes: List[str], exclusions: List[s
     if valide(cb.get("spf")): ess.append(cb["spf"]); comp.append(cb["spf"])
         
     ctx = formater_donnees_environnementales(environnement, client_ip)
-    txt_ia = generer_analyse_claude(prenom, age, noms.get(p1, p1), noms.get(p2, p2), ", ".join(attentes), ctx, baumann_data["code"], BIBLE_JUVEA, s_dict, ia_raw_scores)
+    
+    # FORMATAGE INCI POUR CLAUDE
+    # On extrait les noms des produits + leur INCI pour que Claude puisse les mentionner
+    noms_produits = [f"- {p['texte']} (INCI: {p.get('inci', 'Aloe Barbadensis Leaf Juice, Actifs naturels')})" for p in comp]
+    produits_str = "\n".join(noms_produits)
+    
+    txt_ia = generer_analyse_claude(prenom, age, noms.get(p1, p1), noms.get(p2, p2), ", ".join(attentes), ctx, baumann_data["code"], BIBLE_JUVEA, s_dict, ia_raw_scores, produits_str)
     actifs = list(set(cb.get("actifs", []) + cs.get("actifs", [])))
     return txt_ia, ess, comp, actifs, baumann_data
 
