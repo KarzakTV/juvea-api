@@ -188,7 +188,7 @@ IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide."""
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
     payload = {
-        "model": "claude-4-6-sonnet", # Modèle mis à jour
+        "model": "claude-sonnet-4-6", # Modèle corrigé avec la syntaxe exacte d'Anthropic
         "max_tokens": 2500, 
         "temperature": 0.4, 
         "system": prompt_system, 
@@ -302,13 +302,12 @@ async def sos_peau_chat(req: SosRequete):
         
     prompt_system = f"Tu es l'Expert Dermo-Cosmétique d'Urgence Juvea Paris. Patient Baumann : {req.baumann_code}. Météo : {req.environnement}. Concis, rassurant, luxueux."
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
-    payload = {"model": "claude-4-6-sonnet", "max_tokens": 500, "temperature": 0.5, "system": prompt_system, "messages": [{"role": "user", "content": req.message}]} # Modèle mis à jour
+    payload = {"model": "claude-sonnet-4-6", "max_tokens": 500, "temperature": 0.5, "system": prompt_system, "messages": [{"role": "user", "content": req.message}]} # Modèle corrigé
     try:
         r = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers, timeout=20)
         if r.status_code == 200:
             return {"reponse": r.json()["content"][0]["text"]}
         else:
-            # On imprime dans les logs pour la traçabilité
             print(f"❌ Erreur API SOS Peau: {r.status_code} - {r.text}", flush=True)
             return {"reponse": f"ERREUR CLAUDE : Code {r.status_code} - {r.text}"}
     except Exception as e:
@@ -324,7 +323,7 @@ async def scan_inci_vision(req: InciRequete):
     prompt_system = f"Analyse l'image INCI pour le type {req.baumann_code}. Recommande via : {cat_str}. JSON uniquement."
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     b64_clean = req.image_b64.split(",")[-1] if "," in req.image_b64 else req.image_b64
-    payload = {"model": "claude-4-6-sonnet", "max_tokens": 800, "system": prompt_system, "messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_clean}}, {"type": "text", "text": "Analyse INCI."}]}]} # Modèle mis à jour
+    payload = {"model": "claude-sonnet-4-6", "max_tokens": 800, "system": prompt_system, "messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_clean}}, {"type": "text", "text": "Analyse INCI."}]}]} # Modèle corrigé
     try:
         r = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers, timeout=30)
         if r.status_code == 200:
