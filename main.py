@@ -224,6 +224,8 @@ IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Tu dois IMPÉRATIVEMENT uti
                     print(f"❌ Erreur lors du parsing JSON de Claude : {parse_err}", flush=True)
                     print(f"Texte brut renvoyé par Claude :\n{clean_text}", flush=True)
                     pass
+            else:
+                print(f"❌ Regex n'a pas trouvé de JSON valide. Texte brut :\n{clean_text}", flush=True)
         else:
             print(f"❌ Erreur API Claude: {r.status_code} - {r.text}", flush=True)
     except Exception as e:
@@ -279,8 +281,9 @@ def generer_rituel_juvea(scores: Scores, attentes: List[str], exclusions: List[s
     actifs = list(set(cb.get("actifs", []) + cs.get("actifs", [])))
     return txt_ia, ess, comp, actifs, baumann_data
 
+# ATTENTION : Les "async" ont été retirés pour éviter le blocage du serveur Render
 @app.post("/api/diagnostic")
-async def diagnostic(client: RequeteClient, request: Request, background_tasks: BackgroundTasks):
+def diagnostic(client: RequeteClient, request: Request, background_tasks: BackgroundTasks):
     try:
         forwarded = request.headers.get("X-Forwarded-For")
         client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
@@ -301,7 +304,7 @@ async def diagnostic(client: RequeteClient, request: Request, background_tasks: 
         return {"error": str(e)}
 
 @app.post("/api/sos-peau")
-async def sos_peau_chat(req: SosRequete):
+def sos_peau_chat(req: SosRequete):
     if not ANTHROPIC_API_KEY:
         return {"reponse": "Clé API Anthropic manquante sur le serveur."}
         
@@ -323,7 +326,6 @@ RÈGLES ABSOLUES :
     
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
-    # On prépare le contenu du message. S'il y a une image en base64, on l'ajoute !
     content_block = []
     if req.image_b64:
         b64_clean = req.image_b64.split(",")[-1] if "," in req.image_b64 else req.image_b64
@@ -336,7 +338,6 @@ RÈGLES ABSOLUES :
             }
         })
     
-    # On ajoute toujours le message texte du client
     content_block.append({"type": "text", "text": req.message})
 
     payload = {
@@ -361,7 +362,7 @@ RÈGLES ABSOLUES :
         return {"reponse": f"ERREUR SERVEUR : {str(e)}"}
 
 @app.post("/api/scan-inci")
-async def scan_inci_vision(req: InciRequete):
+def scan_inci_vision(req: InciRequete):
     if not ANTHROPIC_API_KEY:
         return {"error": "Clé API Anthropic manquante.", "statut": "erreur", "analyse": "Clé API manquante sur le serveur."}
         
