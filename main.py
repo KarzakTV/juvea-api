@@ -61,6 +61,8 @@ class SosRequete(BaseModel):
     baumann_code: str
     baumann_profil: str
     environnement: str
+    prenom: str = "Client"
+    image_b64: Optional[str] = None # Ajout de l'image optionnelle pour SOS Peau
 
 class InciRequete(BaseModel):
     image_b64: str
@@ -188,7 +190,7 @@ IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide."""
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
     payload = {
-        "model": "claude-sonnet-4-6", # Modèle corrigé avec la syntaxe exacte d'Anthropic
+        "model": "claude-sonnet-4-6",
         "max_tokens": 2500, 
         "temperature": 0.4, 
         "system": prompt_system, 
@@ -300,13 +302,54 @@ async def sos_peau_chat(req: SosRequete):
     if not ANTHROPIC_API_KEY:
         return {"reponse": "Clé API Anthropic manquante sur le serveur."}
         
-    prompt_system = f"Tu es l'Expert Dermo-Cosmétique d'Urgence Juvea Paris. Patient Baumann : {req.baumann_code}. Météo : {req.environnement}. Concis, rassurant, luxueux."
+    nom_client = req.prenom if req.prenom else "Client"
+    
+    prompt_system = f"""Tu es l'Expert Dermo-Cosmétique d'Urgence Juvea Paris.
+Patient : {nom_client}, Profil Baumann : {req.baumann_code} ({req.baumann_profil}).
+Localisation/Météo : {req.environnement}.
+
+RÈGLES ABSOLUES :
+1. Commence toujours ta réponse par "Bonjour {nom_client},"
+2. NE GÉNÈRE AUCUN FORMATAGE MARKDOWN (pas de gras, pas d'astérisques **, pas de titres #). Rédige uniquement en texte brut.
+3. Ton ton doit être clinique et expert, mais vulgarisé pour être compréhensible par le client.
+4. Base tes conseils strictement sur le profil Baumann du client.
+5. Si le client envoie une photo de sa peau, analyse visuellement la problématique (rougeurs, boutons, sécheresse, etc.) et intègre cette observation à ton conseil.
+6. Si le problème décrit ou visible sur la photo nécessite une expertise médicale (maladie de peau, infection, acné sévère, lésion suspecte), signale-le impérativement.
+7. Dans ce cas médical, utilise la localisation du client ({req.environnement}) pour proposer des spécialistes (dermatologues ou cliniques) autour de lui SI tu en connais de réputés dans cette zone. Si tu n'en trouves pas de précis dans cette zone, indique clairement que tu n'as pas trouvé de spécialiste à proximité immédiate dans ta base et invite le client à se renseigner par lui-même.
+"""
+    
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
-    payload = {"model": "claude-sonnet-4-6", "max_tokens": 500, "temperature": 0.5, "system": prompt_system, "messages": [{"role": "user", "content": req.message}]} # Modèle corrigé
+    
+    # On prépare le contenu du message. S'il y a une image en base64, on l'ajoute !
+    content_block = []
+    if req.image_b64:
+        b64_clean = req.image_b64.split(",")[-1] if "," in req.image_b64 else req.image_b64
+        content_block.append({
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": "image/jpeg",
+                "data": b64_clean
+            }
+        })
+    
+    # On ajoute toujours le message texte du client
+    content_block.append({"type": "text", "text": req.message})
+
+    payload = {
+        "model": "claude-sonnet-4-6", 
+        "max_tokens": 500, 
+        "temperature": 0.5, 
+        "system": prompt_system, 
+        "messages": [{"role": "user", "content": content_block}]
+    }
+    
     try:
         r = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers, timeout=20)
         if r.status_code == 200:
-            return {"reponse": r.json()["content"][0]["text"]}
+            texte_brut = r.json()["content"][0]["text"]
+            texte_propre = texte_brut.replace("**", "").replace("*", "").replace("#", "")
+            return {"reponse": texte_propre}
         else:
             print(f"❌ Erreur API SOS Peau: {r.status_code} - {r.text}", flush=True)
             return {"reponse": f"ERREUR CLAUDE : Code {r.status_code} - {r.text}"}
@@ -323,7 +366,7 @@ async def scan_inci_vision(req: InciRequete):
     prompt_system = f"Analyse l'image INCI pour le type {req.baumann_code}. Recommande via : {cat_str}. JSON uniquement."
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     b64_clean = req.image_b64.split(",")[-1] if "," in req.image_b64 else req.image_b64
-    payload = {"model": "claude-sonnet-4-6", "max_tokens": 800, "system": prompt_system, "messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_clean}}, {"type": "text", "text": "Analyse INCI."}]}]} # Modèle corrigé
+    payload = {"model": "claude-sonnet-4-6", "max_tokens": 800, "system": prompt_system, "messages": [{"role": "user", "content": [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_clean}}, {"type": "text", "text": "Analyse INCI."}]}]}
     try:
         r = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers, timeout=30)
         if r.status_code == 200:
