@@ -489,3 +489,4 @@ def scan_inci_vision(req: InciRequete):
         if r.status_code == 200: return json.loads(r.json()["content"][0]["text"])
         else: return {"statut": "erreur", "analyse": f"ERREUR CLAUDE"}
     except Exception as e: return {"statut": "erreur", "analyse": f"ERREUR SERVEUR"}
+    # Relance Render
