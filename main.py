@@ -81,7 +81,7 @@ app.include_router(webhook_router, prefix="/api/webhooks/shopify")
 
 BIBLE_JUVEA = """
 PHILOSOPHIE JUVEA PARIS : Nous sommes une marque de dermo-cosmétique française de luxe.
-NOTRE SECRET DE FORMULATION : Nous remplaçons souvent l'eau inactive par du Pur Jus d'Aloe Vera certifié bio.
+NOTRE SECRET DE FORMULATION : Nous remplaçons l'eau inactive par du Pur Jus d'Aloe Vera certifié bio.
 TON : Chaleureux, bienveillant, fluide, accessible. Pas de jargon médical lourd.
 """
 
@@ -176,20 +176,19 @@ def generer_analyse_claude(prenom, age, profil, profil_secondaire, attentes, con
     if ia_raw_scores:
         photo_context = (
             f"L'analyse photo montre (sur 100) : Rides {ia_raw_scores.get('rides', 'N/A')}, Taches {ia_raw_scores.get('taches', 'N/A')}, "
-            f"Rougeurs {ia_raw_scores.get('rougeurs', 'N/A')}, Pores {ia_raw_scores.get('pores', 'N/A')}. Fais-y allusion naturellement."
+            f"Rougeurs {ia_raw_scores.get('rougeurs', 'N/A')}, Pores {ia_raw_scores.get('pores', 'N/A')}."
         )
 
     prompt_system = f"""Tu es le conseiller beauté personnel et scientifique de Juvea Paris.
-RÈGLE ABSOLUE 1 : Ton ton doit être très chaleureux, fluide et accessible, mais tu dois te baser sur une véritable expertise technique dermatologique vulgarisée (pour justifier les recommandations).
-RÈGLE ABSOLUE 2 : Ne sois pas encyclopédique de façon lourde, mais montre que tu comprends la pathologie biologique du client.
-RÈGLE ABSOLUE 3 : Utilise le prénom ({prenom}) pour créer un lien intime.
+RÈGLE ABSOLUE 1 : Ton ton doit être très chaleureux, fluide et accessible, mais tu dois te baser sur une véritable expertise technique dermatologique vulgarisée pour justifier les produits.
+RÈGLE ABSOLUE 2 : Utilise le prénom ({prenom}) pour créer un lien intime.
 BASE JUVEA : {bible}
-PRODUITS RECOMMANDÉS (Utilise ces listes INCI pour justifier l'efficacité en mots simples) : 
+PRODUITS RECOMMANDÉS (Utilise ces listes INCI pour justifier l'efficacité en mots simples dans la partie 'action scientifique') : 
 {produits_str}
 
 STRUCTURE JSON EXACTE REQUISE (Respecte scrupuleusement les clés) :
 {{
-  "analyse_pro": "1 à 2 paragraphes chaleureux s'adressant à {prenom}. Lie son âge ({age} ans), sa typologie ({baumann_code}) et la météo ({contexte}). Montre-lui qu'on a compris sa peau ({profil}). {photo_context}",
+  "analyse_pro": "STRICTEMENT 2 PHRASES MAXIMUM (environ 20 mots). Exemple: 'Bonjour {prenom} 🌿 Face à la météo actuelle ({contexte}), votre peau {baumann_code} a besoin d'être accompagnée. Découvrez le décryptage de votre écosystème ci-dessous.' AUCUN DÉTAIL SCIENTIFIQUE ICI.",
   "deep_dive": [
     {{
       "titre": "Pourquoi votre peau réagit-elle ainsi en ce moment ?",
@@ -197,7 +196,7 @@ STRUCTURE JSON EXACTE REQUISE (Respecte scrupuleusement les clés) :
     }},
     {{
       "titre": "Le point sur vos besoins ciblés",
-      "contenu": "Explication technique et bienveillante sur la raison de ses problématiques principales ({profil} et {profil_secondaire})."
+      "contenu": "Explication technique et bienveillante sur la raison de ses problématiques principales ({profil} et {profil_secondaire}). {photo_context}"
     }},
     {{
       "titre": "L'action scientifique de votre rituel",
@@ -211,7 +210,7 @@ STRUCTURE JSON EXACTE REQUISE (Respecte scrupuleusement les clés) :
 }}
 IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Utilise '\\n' pour les sauts de ligne. AUCUN vrai retour à la ligne dans le JSON."""
     
-    prompt_user = f"Client: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige une expertise chaleureuse, technique mais vulgarisée."
+    prompt_user = f"Client: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige une expertise."
     
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
@@ -226,7 +225,7 @@ IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Utilise '\\n' pour les saut
     }
     
     fallback = {
-        "analyse_pro": f"Bonjour {prenom}, à {age} ans et avec le climat actuel ({contexte}), votre peau a besoin de beaucoup de douceur. Votre typologie {baumann_code} montre que votre barrière naturelle est un peu fatiguée, ce qui accentue vos besoins en {profil}. Pas d'inquiétude, la routine sur-mesure que nous avons préparée va la ressourcer en profondeur.",
+        "analyse_pro": f"Bonjour {prenom} 🌿 L'impact de la météo actuelle ({contexte}) influe directement sur votre peau {baumann_code}. Découvrez notre décryptage complet de votre écosystème cutané juste en-dessous.",
         "deep_dive": [
             {"titre": "Comprendre l'état de votre peau", "contenu": f"La typologie {baumann_code} est particulièrement sensible aux variations climatiques. Votre barrière cutanée demande une nutrition spécifique pour compenser les pertes en eau."}
         ],
