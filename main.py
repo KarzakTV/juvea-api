@@ -10,6 +10,11 @@ import re
 import os
 import traceback
 
+# --- NOUVEAUX IMPORTS POUR LES NOTIFICATIONS ---
+import firebase_admin
+from firebase_admin import credentials, messaging, firestore
+from apscheduler.schedulers.background import BackgroundScheduler
+
 from shopify_webhook import webhook_router
 
 app = FastAPI()
@@ -31,6 +36,123 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"]
 )
+
+# --- INITIALISATION FIREBASE ADMIN ---
+CHEMIN_SECRET = "/etc/secrets/firebase-key.json"
+
+if os.path.exists(CHEMIN_SECRET):
+    if not firebase_admin._apps:
+        cred = credentials.Certificate(CHEMIN_SECRET)
+        firebase_admin.initialize_app(cred)
+    db = firestore.client()
+    print("✅ Firebase Admin initialisé avec succès.")
+else:
+    db = None
+    print("⚠️ Fichier secret Firebase introuvable. Mode développement (sans push).")
+
+# --- FONCTIONS DE NOTIFICATIONS PUSH (HORLOGE) ---
+def push_routine_quotidienne(moment):
+    """Envoie un rappel le matin (8h) ou le soir (20h)"""
+    if not db: return
+    try:
+        users_ref = db.collection('users').stream()
+        for doc in users_ref:
+            user = doc.to_dict()
+            token = user.get('fcmToken')
+            if token:
+                prenom = user.get('prenom', 'Beauté')
+                if moment == "matin":
+                    titre = f"☀️ Bonjour {prenom}"
+                    corps = "Il est temps pour votre rituel d'hydratation matinal."
+                else:
+                    titre = f"🌙 Douce nuit {prenom}"
+                    corps = "Prenez un moment pour votre rituel du soir avant de dormir."
+                
+                msg = messaging.Message(
+                    notification=messaging.Notification(title=titre, body=corps),
+                    token=token
+                )
+                try: messaging.send(msg)
+                except Exception: pass # Ignore si le jeton du client a expiré
+    except Exception as e:
+        print("Erreur Push Quotidien :", e)
+
+def push_cycle_28_jours():
+    """Vérifie si la dernière expertise date de 28 jours exactement"""
+    if not db: return
+    try:
+        users_ref = db.collection('users').stream()
+        aujourd_hui = datetime.datetime.now(datetime.timezone.utc)
+        
+        for doc in users_ref:
+            user = doc.to_dict()
+            token = user.get('fcmToken')
+            last_scan = user.get('lastScanDate')
+            
+            if token and last_scan:
+                try:
+                    date_scan = datetime.datetime.fromisoformat(last_scan.replace('Z', '+00:00'))
+                    delta = aujourd_hui - date_scan
+                    if delta.days == 28:
+                        msg = messaging.Message(
+                            notification=messaging.Notification(
+                                title="⏳ Cycle cutané terminé",
+                                body=f"{user.get('prenom', '')}, votre peau s'est renouvelée. Mettez à jour votre expertise !"
+                            ),
+                            token=token
+                        )
+                        messaging.send(msg)
+                except Exception:
+                    pass
+    except Exception as e:
+        print("Erreur Push 28 Jours :", e)
+
+def push_alerte_exposome():
+    """Vérifie la pollution locale du client et envoie une alerte"""
+    if not db: return
+    try:
+        users_ref = db.collection('users').stream()
+        for doc in users_ref:
+            user = doc.to_dict()
+            token = user.get('fcmToken')
+            lat = user.get('latitude')
+            lon = user.get('longitude')
+            
+            if token and lat and lon:
+                url = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&current=pm2_5"
+                res = requests.get(url, timeout=5)
+                if res.status_code == 200:
+                    data = res.json()
+                    pm25 = data.get('current', {}).get('pm2_5', 0)
+                    
+                    if pm25 > 25:
+                        msg = messaging.Message(
+                            notification=messaging.Notification(
+                                title="⚠️ Alerte Qualité de l'Air",
+                                body="L'air est pollué chez vous aujourd'hui. Un double nettoyage s'impose ce soir."
+                            ),
+                            token=token
+                        )
+                        try: messaging.send(msg)
+                        except Exception: pass
+    except Exception as e:
+        print("Erreur Push Météo :", e)
+
+# --- DÉMARRAGE DE L'HORLOGE AU LANCEMENT DE L'API ---
+@app.on_event("startup")
+def start_scheduler():
+    scheduler = BackgroundScheduler()
+    # Rappel Matin (tous les jours à 08h00 UTC)
+    scheduler.add_job(push_routine_quotidienne, 'cron', hour=8, minute=0, args=["matin"])
+    # Rappel Soir (tous les jours à 20h00 UTC)
+    scheduler.add_job(push_routine_quotidienne, 'cron', hour=20, minute=0, args=["soir"])
+    # Rappel 28 jours (tous les jours à 12h00 UTC)
+    scheduler.add_job(push_cycle_28_jours, 'cron', hour=12, minute=0)
+    # Alerte Météo/Pollution (tous les jours à 09h00 UTC)
+    scheduler.add_job(push_alerte_exposome, 'cron', hour=9, minute=0)
+    
+    scheduler.start()
+    print("⏰ Planificateur de notifications démarré avec succès !")
 
 # --- POURCENTAGES BAUMANN (Répartition réaliste) ---
 BAUMANN_PCT = {
