@@ -32,6 +32,14 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
+# --- POURCENTAGES BAUMANN (Répartition réaliste) ---
+BAUMANN_PCT = {
+    "ORPT": 8.5, "ORPW": 12.2, "ORNT": 7.1, "ORNW": 9.4,
+    "OSPT": 6.3, "OSPW": 11.5, "OSNT": 5.8, "OSNW": 8.7,
+    "DRPT": 4.2, "DRPW": 6.8,  "DRNT": 3.9, "DRNW": 5.1,
+    "DSPT": 2.4, "DSPW": 4.5,  "DSNT": 1.8, "DSNW": 1.8
+}
+
 # --- MODELES DE DONNEES ---
 class Scores(BaseModel):
     purete: int; temps: int; eclat: int; apaisement: int
@@ -133,8 +141,11 @@ def calculer_baumann(scores: Scores):
     if b_sr == "S": a_fuir.append("Gommages mécaniques à grains durs, parfums synthétiques forts")
     if b_pn == "P": a_fuir.append("Exposition solaire sans protection SPF50 minérale")
     
+    pourcentage = BAUMANN_PCT.get(code, 5.5)
+
     return {
         "code": code,
+        "pourcentage": pourcentage,
         "profil": f"Peau {txt_od.split('(')[1][:-1]}, {txt_sr.split('(')[1][:-1]}, {txt_pn.split('(')[1][:-1]} et {txt_wt.split('(')[1][:-1]}.",
         "explication": f"Votre typologie de Baumann indique que votre peau est caractérisée par : {txt_od.lower()}, {txt_sr.lower()}, {txt_pn.lower()} et {txt_wt.lower()}.",
         "avantages": "Des textures fluides, Acide Salicylique" if b_od == "O" else "Des céramides, Acide Hyaluronique, Huiles d'Omégas",
@@ -168,31 +179,45 @@ def generer_analyse_claude(prenom, age, profil, profil_secondaire, attentes, con
             f"Rougeurs {ia_raw_scores.get('rougeurs', 'N/A')}, Pores {ia_raw_scores.get('pores', 'N/A')}. Fais-y allusion naturellement."
         )
 
-    prompt_system = f"""Tu es le conseiller beauté personnel et bienveillant de Juvea Paris.
-RÈGLE ABSOLUE 1 : Ton ton doit être très chaleureux, fluide et facile à lire. Pas de jargon scientifique lourd. Parle comme un humain empathique.
-RÈGLE ABSOLUE 2 : Utilise des mots simples ("barrière protectrice", "besoin d'eau", etc.). Fais des liens logiques entre les phrases pour éviter l'effet "décousu".
+    prompt_system = f"""Tu es le conseiller beauté personnel et scientifique de Juvea Paris.
+RÈGLE ABSOLUE 1 : Ton ton doit être très chaleureux, fluide et accessible, mais tu dois te baser sur une véritable expertise technique dermatologique vulgarisée (pour justifier les recommandations).
+RÈGLE ABSOLUE 2 : Ne sois pas encyclopédique de façon lourde, mais montre que tu comprends la pathologie biologique du client.
 RÈGLE ABSOLUE 3 : Utilise le prénom ({prenom}) pour créer un lien intime.
 BASE JUVEA : {bible}
 PRODUITS RECOMMANDÉS (Utilise ces listes INCI pour justifier l'efficacité en mots simples) : 
 {produits_str}
 
-STRUCTURE JSON EXACTE REQUISE :
+STRUCTURE JSON EXACTE REQUISE (Respecte scrupuleusement les clés) :
 {{
-  "analyse_pro": "1 à 2 paragraphes très chaleureux et fluides s'adressant à {prenom}. Lie son âge ({age} ans), sa typologie ({baumann_code}) et la météo ({contexte}). Montre-lui qu'on a compris sa peau ({profil}) et rassure-la sur la solution. {photo_context}",
-  "focus_actif": "1 paragraphe expliquant simplement pourquoi les actifs de sa routine (voir liste INCI fournie) vont l'aider au quotidien.",
-  "conseils_vie": "1 paragraphe bienveillant de conseils lifestyle (eau, sommeil) adaptés à la météo.",
-  "exclusions_texte": "1 paragraphe court expliquant doucement quels ingrédients éviter pour ne pas irriter sa peau.",
-  "decryptage_inci": "1 phrase rassurante expliquant que chez Juvea, on remplace l'eau par du Jus d'Aloe Vera."
+  "analyse_pro": "1 à 2 paragraphes chaleureux s'adressant à {prenom}. Lie son âge ({age} ans), sa typologie ({baumann_code}) et la météo ({contexte}). Montre-lui qu'on a compris sa peau ({profil}). {photo_context}",
+  "deep_dive": [
+    {{
+      "titre": "Pourquoi votre peau réagit-elle ainsi en ce moment ?",
+      "contenu": "Explication biologique vulgarisée du comportement de sa peau ({baumann_code}) face à la météo ({contexte})."
+    }},
+    {{
+      "titre": "Le point sur vos besoins ciblés",
+      "contenu": "Explication technique et bienveillante sur la raison de ses problématiques principales ({profil} et {profil_secondaire})."
+    }},
+    {{
+      "titre": "L'action scientifique de votre rituel",
+      "contenu": "Pourquoi les actifs de la routine recommandée sont biologiquement adaptés à son écosystème cutané actuel."
+    }}
+  ],
+  "focus_actif": "1 paragraphe résumant l'avantage des actifs de sa routine.",
+  "conseils_vie": "1 paragraphe bienveillant de conseils lifestyle (eau, sommeil, alimentation) adaptés à sa pathologie et la météo.",
+  "exclusions_texte": "1 paragraphe court expliquant scientifiquement mais doucement quels ingrédients éviter pour ne pas empirer son profil {baumann_code}.",
+  "decryptage_inci": "1 phrase rassurante expliquant que chez Juvea, on remplace l'eau inactive par du Pur Jus d'Aloe Vera bio pour une hydratation cellulaire active."
 }}
 IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Utilise '\\n' pour les sauts de ligne. AUCUN vrai retour à la ligne dans le JSON."""
     
-    prompt_user = f"Client: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige une expertise chaleureuse, fluide et sans jargon compliqué."
+    prompt_user = f"Client: {prenom}, {age} ans. Typologie: {baumann_code}. Environnement: {contexte}. Rédige une expertise chaleureuse, technique mais vulgarisée."
     
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
     payload = {
         "model": "claude-sonnet-4-6",
-        "max_tokens": 2500, 
+        "max_tokens": 3000, 
         "temperature": 0.6, 
         "system": prompt_system, 
         "messages": [
@@ -202,6 +227,9 @@ IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Utilise '\\n' pour les saut
     
     fallback = {
         "analyse_pro": f"Bonjour {prenom}, à {age} ans et avec le climat actuel ({contexte}), votre peau a besoin de beaucoup de douceur. Votre typologie {baumann_code} montre que votre barrière naturelle est un peu fatiguée, ce qui accentue vos besoins en {profil}. Pas d'inquiétude, la routine sur-mesure que nous avons préparée va la ressourcer en profondeur.",
+        "deep_dive": [
+            {"titre": "Comprendre l'état de votre peau", "contenu": f"La typologie {baumann_code} est particulièrement sensible aux variations climatiques. Votre barrière cutanée demande une nutrition spécifique pour compenser les pertes en eau."}
+        ],
         "focus_actif": "Nous avons sélectionné des alternatives végétales très douces mais ultra-efficaces qui vont gorger votre peau des nutriments dont elle a besoin.",
         "conseils_vie": f"N'oubliez pas de boire beaucoup d'eau pour contrer la météo ({contexte}) et de vous accorder de vraies nuits de sommeil, {prenom}.",
         "exclusions_texte": "Essayez de mettre de côté les nettoyants trop moussants et les produits contenant de l'alcool, qui ont tendance à assécher votre peau.",
@@ -283,8 +311,8 @@ def diagnostic(client: RequeteClient, request: Request, background_tasks: Backgr
         
         res = {
             "client": f"{client.prenom} {client.nom}",
-            "baumann_code": baumann_data["code"], "baumann_profil": baumann_data["profil"], "baumann_explication": baumann_data["explication"], "baumann_avantages": baumann_data["avantages"], "baumann_a_fuir": baumann_data["a_fuir"],
-            "analyse_pro": txt_ia.get("analyse_pro", ""), "focus_actif": txt_ia.get("focus_actif", ""), "conseils_vie": txt_ia.get("conseils_vie", ""), "exclusions_texte": txt_ia.get("exclusions_texte", ""), "decryptage_inci": txt_ia.get("decryptage_inci", ""),
+            "baumann_code": baumann_data["code"], "baumann_pourcentage": baumann_data.get("pourcentage", 5.5), "baumann_profil": baumann_data["profil"], "baumann_explication": baumann_data["explication"], "baumann_avantages": baumann_data["avantages"], "baumann_a_fuir": baumann_data["a_fuir"],
+            "analyse_pro": txt_ia.get("analyse_pro", ""), "deep_dive": txt_ia.get("deep_dive", []), "focus_actif": txt_ia.get("focus_actif", ""), "conseils_vie": txt_ia.get("conseils_vie", ""), "exclusions_texte": txt_ia.get("exclusions_texte", ""), "decryptage_inci": txt_ia.get("decryptage_inci", ""),
             "offre_essentielle": ess, "offre_complete": comp, "actifs_recommandes": actifs,
             "ia_raw_scores": client.ia_raw_scores
         }
