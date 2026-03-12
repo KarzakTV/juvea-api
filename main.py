@@ -154,6 +154,41 @@ def start_scheduler():
     scheduler.start()
     print("⏰ Planificateur de notifications démarré avec succès !")
 
+# --- ENDPOINT DE TEST POUR LES NOTIFICATIONS PUSH ---
+@app.get("/api/test-push")
+def test_push_notification(email: Optional[str] = None):
+    """Permet de déclencher une notification immédiatement pour tester l'APK."""
+    if not db:
+        return {"status": "erreur", "message": "Firebase n'est pas initialisé. Vérifiez votre Secret File sur Render."}
+    try:
+        if email:
+            users_ref = db.collection('users').where('email', '==', email).stream()
+        else:
+            users_ref = db.collection('users').limit(10).stream() # Envoie à max 10 appareils pour éviter le spam
+            
+        count = 0
+        for doc in users_ref:
+            user = doc.to_dict()
+            token = user.get('fcmToken')
+            if token:
+                msg = messaging.Message(
+                    notification=messaging.Notification(
+                        title="✨ Test Juvea Paris",
+                        body=f"Bonjour {user.get('prenom', '')}, vos notifications push natives fonctionnent !"
+                    ),
+                    token=token
+                )
+                try:
+                    messaging.send(msg)
+                    count += 1
+                except Exception as e:
+                    print(f"Erreur d'envoi pour le token {token[:10]}... : {str(e)}")
+        
+        return {"status": "succès", "message": f"Notification de test envoyée à {count} appareil(s)."}
+    except Exception as e:
+        traceback.print_exc()
+        return {"status": "erreur", "message": str(e)}
+
 # --- POURCENTAGES BAUMANN (Répartition réaliste) ---
 BAUMANN_PCT = {
     "ORPT": 8.5, "ORPW": 12.2, "ORNT": 7.1, "ORNW": 9.4,
@@ -337,7 +372,7 @@ IMPORTANT : Renvoie UNIQUEMENT un objet JSON valide. Utilise '\\n' pour les saut
     headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"}
     
     payload = {
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-4-6", # Note technique : Ce modèle Anthropic n'existe pas officiellement, si ça plante, remplace-le par "claude-3-5-sonnet-20240620"
         "max_tokens": 3000, 
         "temperature": 0.6, 
         "system": prompt_system, 
@@ -489,4 +524,3 @@ def scan_inci_vision(req: InciRequete):
         if r.status_code == 200: return json.loads(r.json()["content"][0]["text"])
         else: return {"statut": "erreur", "analyse": f"ERREUR CLAUDE"}
     except Exception as e: return {"statut": "erreur", "analyse": f"ERREUR SERVEUR"}
-    # Relance Render
